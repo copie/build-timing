@@ -1,7 +1,5 @@
 use std::{
-    collections::{BTreeMap, BTreeSet},
-    fs::File,
-    path::Path,
+    collections::{BTreeMap, BTreeSet}, fs::File, mem, path::Path
 };
 
 use crate::{
@@ -41,10 +39,12 @@ pub struct BuildTiming {
     /// This field sets the pattern for how often the package should be rebuilt. Options include `Lazy`, `RealTime`, and `Custom`, each with its own implications on the build frequency and conditions under which a rebuild is triggered.
     /// It can be configured using [`BuildTimingBuilder::build_pattern`].
     pub build_pattern: BuildPattern,
+
+    pub hook_consts: Vec<Box<dyn BuildConstVal >>,
 }
 
 impl BuildTiming {
-    pub(crate) fn build_inner(builder: BuildTimingBuilder) -> BtResult<BuildTiming> {
+    pub(crate) fn build_inner(builder: &mut BuildTimingBuilder) -> BtResult<BuildTiming> {
         let out_path = builder.get_out_path()?;
         let build_pattern = builder.get_build_pattern().clone();
         let allow_const = builder.get_allow_const().clone();
@@ -64,10 +64,11 @@ impl BuildTiming {
             allow_const,
             out_path: out_path.to_string(),
             build_pattern,
+            hook_consts: mem::take(&mut builder.hook_consts),
         };
 
         for const_name in build_timing.allow_const.iter() {
-            build_timing.map.insert(const_name, const_name.build_val());
+            build_timing.map.insert(*const_name, const_name.build_val());
         }
         build_timing.write_all()?;
 
@@ -86,7 +87,7 @@ impl BuildTiming {
     }
 
     
-    fn write_const(&self, build_timing_const: BuildTimingConst, val: &ConstVal) -> BtResult<()> {
+    fn write_const(&self, build_timing_const: &str, val: &ConstVal) -> BtResult<()> {
         let desc = format!("#[doc=r#\"{}\"#]", val.desc);
         let define = match val.t {
             ConstType::Str => format!(
@@ -137,8 +138,13 @@ impl BuildTiming {
         self.build_pattern.rerun_if(self.map.keys(), out_dir);
 
         for (k, v) in &self.map {
-            self.write_const(k, v)?;
+            self.write_const(&k.to_string(), v)?;
         }
+
+        for const_name in self.hook_consts.iter() {
+            self.write_const(&const_name.to_string(), &const_name.build_val())?;
+        }
+
         Ok(())
     }
 

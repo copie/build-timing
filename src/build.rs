@@ -5,7 +5,7 @@ use std::{
 
 use crate::{
     build_timing::DEFINE_BUILD_TIMING_RS,
-    env::{BuildTimingConst, BUILD_OS},
+    env::{BuildConstVal, BuildTimingConst, BUILD_OS},
     err::BtResult, BuildTiming,
 };
 
@@ -33,8 +33,8 @@ pub fn default_allow() -> BTreeSet<BuildTimingConst> {
 pub struct BuildTimingBuilder {
     build_pattern: BuildPattern,
     allow_const: BTreeSet<BuildTimingConst>,
-    src_path: Option<String>,
     out_path: Option<String>,
+    pub(crate) hook_consts: Vec<Box<dyn BuildConstVal>>,
 }
 
 impl BuildTimingBuilder {
@@ -51,13 +51,12 @@ impl BuildTimingBuilder {
     ///
     /// A new instance of `BuildTimingBuilder`.
     pub fn builder() -> Self {
-        let default_src_path = std::env::var("CARGO_MANIFEST_DIR").ok();
         let default_out_path = std::env::var("OUT_DIR").ok();
         Self {
             build_pattern: BuildPattern::default(),
             allow_const: default_allow(),
-            src_path: default_src_path,
             out_path: default_out_path,
+            hook_consts: Vec::new(),
         }
     }
 
@@ -69,16 +68,6 @@ impl BuildTimingBuilder {
     pub fn get_out_path(&self) -> BtResult<&String> {
         let out_path = self.out_path.as_ref().ok_or("missing `out_path`")?;
         Ok(out_path)
-    }
-
-    /// Gets the source path if it has been set.
-    ///
-    /// # Returns
-    ///
-    /// A `BtResult<&String>` containing the source path or an error if the path is missing.
-    pub fn get_src_path(&self) -> BtResult<&String> {
-        let src_path = self.src_path.as_ref().ok_or("missing `src_path`")?;
-        Ok(src_path)
     }
 
     /// Gets the build pattern.
@@ -118,8 +107,13 @@ impl BuildTimingBuilder {
     /// # Returns
     ///
     /// A `SdResult<BuildTiming>` that represents the outcome of the build operation.
-    pub fn build(self) -> BtResult<BuildTiming> {
+    pub fn build(&mut self) -> BtResult<BuildTiming> {
         BuildTiming::build_inner(self)
+    }
+
+    pub fn add_const_hook(mut self, hook: Box<dyn BuildConstVal>) -> Self {
+        self.hook_consts.push(hook);
+        self
     }
 }
 
@@ -246,7 +240,7 @@ impl BuildPattern {
             }
         }
 
-        other_keys.for_each(|key| println!("cargo:rerun-if-env-changed={key}"));
+        other_keys.for_each(|key| println!("cargo:rerun-if-env-changed={}", key.to_string()));
         println!("cargo:rerun-if-env-changed={DEFINE_SOURCE_DATE_EPOCH}");
         println!("cargo:rerun-if-changed={out_dir}/{DEFINE_BUILD_TIMING_RS}");
     }
