@@ -1,0 +1,21 @@
+[package]
+name = "build-timing"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[dependencies]
+lazy_static = "1.5.0"
+is_debug = { version = "1.1.0", default-features = false }
+time = { version = "0.3.41", features = ["formatting", "local-offset", "parsing"], default-features = false, optional = true }
+
+## Better support for querying the local system time
+tzdb = { version = "0.7.2", optional = true, default-features = false, features = ["local", "now"] }
+
+[features]
+default = ["tzdb", "build"]
+
+std = []
+no_std = []
+
+build = ["time", "tzdb", "is_debug/std", "std"]

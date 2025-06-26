@@ -1,0 +1,18 @@
+[package]
+name = "example_build_timing"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = "4.0.1"
+build-timing = { path = "../"}
+
+[build-dependencies]
+build-timing = { path = "../" }
+
+# Test cargo-clippy. For more detailed information about the issue, visit: https://github.com/baoyachi/shadow-rs/issues/151
+[lints.clippy]
+non_ascii_literal = "deny"
+print_stdout = "deny"
+needless_raw_strings = "deny"
+needless_raw_string_hashes = "deny"
