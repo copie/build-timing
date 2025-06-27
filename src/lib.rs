@@ -10,7 +10,7 @@ pub const CARGO_CLIPPY_ALLOW_ALL: &str =
 #[cfg(feature = "build")]
 mod pub_export {
     pub use crate::build::{BuildPattern, BuildTimingBuilder, ConstVal, ConstType};
-    pub use crate::env::{BuildConstVal, BuildTimingConst};
+    pub use crate::env::{BuildConstVal, BuildTimingConst, BUILD_OS};
     pub use crate::date_time::DateTime;
     pub use crate::err::{BtResult, BuildTimingError};
     pub use crate::build_timing::BuildTiming;

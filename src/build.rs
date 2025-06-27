@@ -1,5 +1,5 @@
 use std::{
-    collections::BTreeSet,
+    // collections::BTreeSet,
     fmt::{Display, Formatter},
 };
 
@@ -13,8 +13,8 @@ use crate::date_time::DEFINE_SOURCE_DATE_EPOCH;
 use is_debug::is_debug;
 
 #[allow(clippy::all, clippy::pedantic, clippy::restriction, clippy::nursery)]
-pub fn default_allow() -> BTreeSet<BuildTimingConst> {
-    BTreeSet::from([BUILD_OS])
+pub fn default_allow() -> Vec<BuildTimingConst> {
+    Vec::from([BUILD_OS])
 }
 
 /// A builder pattern structure to construct a `BuildTiming` instance.
@@ -32,7 +32,7 @@ pub fn default_allow() -> BTreeSet<BuildTimingConst> {
 ///
 pub struct BuildTimingBuilder {
     build_pattern: BuildPattern,
-    allow_const: BTreeSet<BuildTimingConst>,
+    allow_const: Vec<BuildTimingConst>,
     out_path: Option<String>,
     pub(crate) hook_consts: Vec<Box<dyn BuildConstVal>>,
 }
@@ -88,7 +88,7 @@ impl BuildTimingBuilder {
     /// # Returns
     ///
     /// A new `BuildTimingBuilder` instance with the specified granted constants.
-    pub fn allow_const(mut self, allow_const: BTreeSet<BuildTimingConst>) -> Self {
+    pub fn allow_const(mut self, allow_const: Vec<BuildTimingConst>) -> Self {
         self.allow_const = allow_const;
         self
     }
@@ -98,7 +98,7 @@ impl BuildTimingBuilder {
     /// # Returns
     ///
     /// A reference to the set of `BuildTimingConst` that are granted for this build.
-    pub fn get_allow_const(&self) -> &BTreeSet<BuildTimingConst> {
+    pub fn get_allow_const(&self) -> &Vec<BuildTimingConst> {
         &self.allow_const
     }
 
