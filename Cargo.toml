@@ -7,6 +7,7 @@ license = "MIT"
 [dependencies]
 lazy_static = "1.5.0"
 is_debug = { version = "1.1.0", default-features = false }
+const_format = { version = "0.2.22", default-features = false }
 time = { version = "0.3.41", features = ["formatting", "local-offset", "parsing"], default-features = false, optional = true }
 
 ## Better support for querying the local system time

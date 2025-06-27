@@ -7,4 +7,5 @@ fn main() {
     println!("Hello, world!");
     println!("{}", build::OKK);
     println!("{}", build::NONONO);
+    println!("{}", build::FORMAT);
 }

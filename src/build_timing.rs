@@ -116,6 +116,15 @@ impl BuildTiming {
                 ConstType::Usize,
                 val.v.parse::<usize>().unwrap_or_default()
             ),
+            ConstType::Format => format!(
+                "#[allow(dead_code)]\n\
+                {}\n\
+            pub const {} :{} = build_timing::formatcp!(r#\"{}\"#);",
+                CARGO_CLIPPY_ALLOW_ALL,
+                build_timing_const.to_ascii_uppercase(),
+                ConstType::Format,
+                val.v
+            ),
         };
 
         writeln!(&self.f, "{desc}")?;

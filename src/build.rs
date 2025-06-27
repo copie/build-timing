@@ -168,6 +168,8 @@ pub enum ConstType {
     Slice,
     /// [`usize`].
     Usize,
+    /// Format string.
+    Format,
 }
 
 impl Display for ConstType {
@@ -177,6 +179,7 @@ impl Display for ConstType {
             ConstType::Bool => write!(f, "bool"),
             ConstType::Slice => write!(f, "&[u8]"),
             ConstType::Usize => write!(f, "usize"),
+            ConstType::Format => write!(f, "&str"),
         }
     }
 }

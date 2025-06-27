@@ -4,6 +4,9 @@ mod date_time;
 mod env;
 mod err;
 
+/// Re-exported from the const_format crate
+pub use const_format::*;
+
 pub const CARGO_CLIPPY_ALLOW_ALL: &str =
     "#[allow(clippy::all, clippy::pedantic, clippy::restriction, clippy::nursery)]";
 
